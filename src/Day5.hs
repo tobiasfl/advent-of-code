@@ -27,14 +27,17 @@ toTuples (x:y:xs) = (x,y): toTuples xs
 withBetweens :: Line -> Line
 withBetweens []  = []
 withBetweens [x] = []
---withBetweens ((x1,y1):(x2,y2):xs) = [(x,y) | x <- [min x1 x2..max x1 x2], y <- [min y1 y2..max y1 y2]]  
-withBetweens ((x1,y1):(x2,y2):xs) = [(x,y) | x <- [min x1 x2..max x1 x2], y <- [min y1 y2..max y1 y2]]  
+withBetweens ((x1,y1):(x2,y2):xs) 
+  | notDiag ((x1,y1):(x2,y2):xs) = [(x,y) | x <- [min x1 x2..max x1 x2], y <- [min y1 y2..max y1 y2]]  
+  | otherwise = (x1,y1):withBetweens ((if x1 < x2 then x1+1 else x1-1, if y1 < y2 then y1+1 else y1-1):(x2,y2):xs)
 
+notDiag :: Line -> Bool
+notDiag xs = check (map fst xs) || check (map snd xs)
+    where check axisCoords = head axisCoords == last axisCoords
 
 
 removeDiagonals :: [Line] -> [Line]
-removeDiagonals = filter (\xs -> notDiag (map fst xs) || notDiag (map snd xs))
-    where notDiag xs = head xs == last xs
+removeDiagonals = filter notDiag
 
 countOverlaps :: [Line] -> Int
 countOverlaps = length . filter ((1<) . length) . group . sort . concat
