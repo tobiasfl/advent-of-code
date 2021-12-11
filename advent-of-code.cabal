@@ -26,6 +26,8 @@ source-repository head
 library
   exposed-modules:
       Day1
+      Day10
+      Day11
       Day2
       Day3
       Day4
@@ -33,13 +35,15 @@ library
       Day6
       Day7
       Day8
+      Day9
       Lib
   other-modules:
       Paths_advent_of_code
   hs-source-dirs:
       src
   build-depends:
-      base >=4.7 && <5
+      Stack
+    , base >=4.7 && <5
     , containers
     , split
   default-language: Haskell2010
@@ -52,7 +56,8 @@ executable advent-of-code-exe
       app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      advent-of-code
+      Stack
+    , advent-of-code
     , base >=4.7 && <5
     , containers
     , split
@@ -67,7 +72,8 @@ test-suite advent-of-code-test
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      advent-of-code
+      Stack
+    , advent-of-code
     , base >=4.7 && <5
     , containers
     , split
