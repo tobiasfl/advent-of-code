@@ -15,52 +15,73 @@ solveBoth :: IO ()
 solveBoth = do
     graph <- parseInput . lines <$> readFile "./infiles/Day12.in"
     testGraph <- parseInput . lines <$> readFile "./infiles/Day12Test.in"
-    print graph
     print $ solveA testGraph
-    print $ solveA graph
+    --print $ solveA graph
+    print $ solveA' testGraph
+    print $ solveA' graph
 
 
 type Graph = Map String [String]
 
 solveA :: Graph -> Int
-solveA graph = evalState (checkPaths graph "start") ([], 0)
+solveA graph = evalState (checkPaths graph start) (Map.fromList [(x, 0) | x <- Map.keys graph], 0)
 
-start :: String
 start = "start"
 
-end :: String
 end = "end"
 
 --TODO: could use Map of visited and times they are visited instead of list to make lookups more efficient???
 --State with type of state being set of seen and count of paths being the produced result
 --string is start
-checkPaths :: Graph -> String -> State ([String], Int) Int
+checkPaths :: Graph -> String -> State (Map String Int, Int) Int
 checkPaths graph src = do
     --mark as visited
-    modify (first (src:))  
+    modify (first (Map.adjust (+1) src))  
 
     --if it is the end increment count
     when (src == end) (modify (\(v, pc) -> (v, pc+1)))
-    
-    when (src /= end) $ checkNeighbors graph src
-    modify (first (filter (/=src))) 
+
+    --check neighbors
+    when (src /= end) $ do
+        (visited, pathCount) <- get
+        let neighs = fromMaybe [] $ Map.lookup src graph
+        mapM_ (checkPaths graph) $ filterNeighsB visited neighs
+
+    --mark as non- visited again
+    modify (first (Map.adjust (\n -> n-1) src)) 
 
     (visited, pathCount) <- get
     return pathCount 
 
-checkNeighbors :: Graph -> String -> State ([String], Int) ()
-checkNeighbors graph src = do
-    (visited, pathCount) <- get
-    let neighs = fromMaybe [] $ Map.lookup src graph
-    mapM_ (checkPaths graph) $ filterNeighsA visited neighs
-   
-
-filterNeighsA :: [String] -> [String] -> [String]
-filterNeighsA visited = filter (\n -> all isUpper n || notElem n visited)
+filterNeighsA :: Map String Int -> [String] -> [String]
+filterNeighsA visited = filter (\n -> all isUpper n || Map.findWithDefault 0 n visited == 0) 
 
 --TODO: unfinished
-filterNeighsB :: [String] -> [String] -> [String]
-filterNeighsB visited = filter (\n -> all isUpper n || (length (filter (n==) visited) < 2))
+filterNeighsB :: Map String Int -> [String] -> [String]
+filterNeighsB visited = filter (\n -> all isUpper n || (\vc -> (n == start && vc < 1) || (n /= start && vc < 2)) (Map.findWithDefault 0 n visited))
+
+solveA' :: Graph -> [Map String Int]
+solveA' graph = evalState (checkPaths' graph start) (Map.fromList [(x, 0) | x <- Map.keys graph], [])
+
+checkPaths' :: Graph -> String -> State (Map String Int, [Map String Int]) [Map String Int]
+checkPaths' graph src = do
+    --mark as visited
+    modify (first (Map.adjust (+1) src))  
+
+    --if it is the end increment count
+    when (src == end) (modify (\(v, pc) -> (v, v:pc)))
+
+    --check neighbors
+    when (src /= end) $ do
+        (visited, paths) <- get
+        let neighs = fromMaybe [] $ Map.lookup src graph
+        mapM_ (checkPaths' graph) $ filterNeighsB visited neighs
+
+    --mark as non- visited again
+    modify (first (Map.adjust (\n -> n-1) src)) 
+
+    (visited, pathCount) <- get
+    return pathCount
 
 parseInput :: [String] -> Graph
 parseInput = Map.fromListWith (++) . concatMap (edge . splitOn "-")
