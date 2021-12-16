@@ -1,35 +1,44 @@
 module Day9 where
 
-import Lib(mkGridMap, bfs, allCoords, neighborVals, GridMap)
+import Lib(mkGridMap, allCoords, neighborVals, GridMap, neighborCoords)
 import System.Environment   
 import Data.List
 import Data.Char(digitToInt)
 import Data.Map (Map)
-import qualified Data.Map as Map
+import qualified Data.Map as M
+import Data.Set (Set)
+import qualified Data.Set as S
 import Data.Maybe
 import Data.Tuple
 
 solveBoth :: IO ()
 solveBoth = do
-    contents <- lines <$> readFile "./infiles/Day9.in"
-    --contents <- lines <$> readFile "./infiles/Day9Test.in"
-    print $ solveA $ map (map digitToInt) contents
+    graph <- map (map digitToInt) . lines <$> readFile "./infiles/Day9.in"
+    print $ solveA graph
+    print $ solveB graph
 
 solveA :: [[Int]] -> Int
-solveA xs = sum $ map (+1) $ catMaybes $ lowPoints (mkGridMap xs) (allCoords xs)
+solveA xs = sum $ map ((+1) . snd) $ catMaybes $ lowPoints (mkGridMap xs) (allCoords xs)
 
-maybeLowPoint :: (Int, Int) -> GridMap Int -> Maybe Int
-maybeLowPoint coords m = (\neighs -> Map.lookup coords m >>= \x -> if all (x<) neighs then Just x else Nothing) $ neighborVals coords m
+maybeLowPoint :: (Int, Int) -> GridMap Int -> Maybe ((Int, Int), Int)
+maybeLowPoint coords m = M.lookup coords m >>= \x -> 
+    if all (x<) (neighborVals coords m) then Just (coords, x) else Nothing
 
-lowPoints :: GridMap Int -> [(Int, Int)] -> [Maybe Int]
+lowPoints :: GridMap Int -> [(Int, Int)] -> [Maybe ((Int, Int), Int)]
 lowPoints m = map (`maybeLowPoint` m) 
 
 solveB :: [[Int]] -> Int
-solveB = undefined
+solveB xs = topThreeBasinProd $ findBasins $ catMaybes $ lowPoints graph (allCoords xs)
+    where graph = mkGridMap xs
+          findBasins = map ((\lp -> bfs graph [lp] $ S.singleton lp) . fst)
+          topThreeBasinProd = product . take 3 . reverse . sort . map length
+         
+--finds set of coords related to each basin by doing bfs from a low point
+bfs :: GridMap Int -> [(Int, Int)] -> Set (Int, Int) -> Set (Int, Int)
+bfs _ [] discovered = discovered
+bfs graph (curr:xs) discovered = bfs graph newQueue newVisited
+    where relevantNeighbors = filter isRelevantPred $ neighborCoords curr
+          isRelevantPred c = maybe False (<9) (M.lookup c graph) && S.notMember c discovered
+          newQueue = xs ++ relevantNeighbors 
+          newVisited = discovered `S.union` S.fromList relevantNeighbors
 
---TODO: implement bfs in Lib.hs and use here
-findAllBasins :: [[Int]] -> [Maybe Int]
-findAllBasins = undefined
-
-getBasinSize :: (Int, Int) -> [[Int]] -> Int
-getBasinSize coords xs = undefined

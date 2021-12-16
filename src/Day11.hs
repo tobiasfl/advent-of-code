@@ -1,6 +1,6 @@
 module Day11 where
 
-import Lib(mkGridMap, bfs, allCoords, GridMap, neighborCoords8)
+import Lib(mkGridMap, allCoords, GridMap, neighborCoords8)
 import System.Environment   
 import Data.List
 import Data.Char(digitToInt)
@@ -28,7 +28,7 @@ solveA steps gm = sum $ map snd $ take steps results
 increaseEnergy :: GridMap Int -> GridMap Int
 increaseEnergy = Map.map (+1) 
 
---updates map at coordinates and subsequent flashes until done
+--updates map and subsequent flashes until done
 shine :: GridMap Int -> GridMap Int
 shine m = shineStep (Map.map (\v -> if v == 10 then 11 else v) m) (Map.foldrWithKey (\k v a -> if v == 10 then neighborCoords8 k ++ a else a) [] m)
 
