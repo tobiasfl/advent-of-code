@@ -13,41 +13,44 @@ import Data.Maybe
 
 solveBoth :: IO ()
 solveBoth = do
-    grid <- mkGridMap . map (map digitToInt) . lines <$> readFile "./infiles/Day11Test.in"
-    print $ solveA 5 grid
+    grid <- mkGridMap . map (map digitToInt) . lines <$> readFile "./infiles/Day11.in"
     print $ solveA 100 grid
-    print $ take 10 $ head $ map (Map.elems . fst) $ drop 1 $ iterate (\(m, count) -> (\flashed -> (resetFlashed flashed, flashesAfterStep flashed)) $ shine $ increaseEnergy m) (grid, 0) 
-    print $ take 10 $ head $ map (Map.elems . fst) $ drop 2 $ iterate (\(m, count) -> (\flashed -> (resetFlashed flashed, flashesAfterStep flashed)) $ shine $ increaseEnergy m) (grid, 0) 
-    print $ take 10 $ head $ map (Map.elems . fst) $ drop 3 $ iterate (\(m, count) -> (\flashed -> (resetFlashed flashed, flashesAfterStep flashed)) $ shine $ increaseEnergy m) (grid, 0) 
-
 
 solveA :: Int -> GridMap Int -> Int
-solveA steps gm = sum $ map snd $ take steps results
-    where results = iterate (\(m, count) -> (\flashed -> (resetFlashed flashed, flashesAfterStep flashed)) $ shine $ increaseEnergy m) (gm, 0) 
+solveA steps gm = sum $ map snd $ take (1+steps) results
+    where results = iterate (\(m, count) -> step m) (gm, 0) 
 
-increaseEnergy :: GridMap Int -> GridMap Int
-increaseEnergy = Map.map (+1) 
+solveB :: Int -> GridMap Int -> Int
+solveB = undefined
 
---updates map and subsequent flashes until done
-shine :: GridMap Int -> GridMap Int
-shine m = shineStep (Map.map (\v -> if v == 10 then 11 else v) m) (Map.foldrWithKey (\k v a -> if v == 10 then neighborCoords8 k ++ a else a) [] m)
+step :: GridMap Int -> (GridMap Int, Int)
+step gm = let beforeReset = flash $ Map.map (+1) gm
+        in (resetFlashed beforeReset, flashesAfterStep beforeReset)
 
-shineStep :: GridMap Int -> [(Int, Int)] -> GridMap Int
-shineStep gm [] = gm
-shineStep gm cs = shineStep updatedGm (Map.foldrWithKey (\k v a -> if v == 10 then neighborCoords8 k ++ a else a) [] updatedGm)
-    where updatedGm = foldr (Map.adjust (+1)) gm cs
+--finds which first need flashing, then starts cycle of flash steps
+flash :: GridMap Int -> GridMap Int
+flash m = flashStep m (toFlash m)
+    where toFlash = Map.foldrWithKey 
+              (\k v a -> if v == 10 then k:neighborCoords8 k ++ a else a) [] 
 
+--flash octopuses while gathering up any to be flashed next
+flashStep :: GridMap Int -> [(Int, Int)] -> GridMap Int
+flashStep gm [] = gm
+flashStep gm cs = uncurry flashStep updatedGm
+    where updatedGm = foldr go (gm, []) cs
+          go c (m, xs) = fromMaybe (m, xs) (do
+              v <- Map.lookup c m
+              let newMap = Map.adjust (+1) c m 
+              let newList = if v+1 == 10 then c:neighborCoords8 c ++ xs else xs 
+              return (newMap, newList))
 
-filteredNeighbors :: GridMap Int -> (Int, Int) -> [(Int, Int)]
-filteredNeighbors m = filter f . neighborCoords8 
-    where f c = case Map.lookup c m of Just v  -> v < 10
-                                       Nothing -> False
+          
 
 flashesAfterStep :: GridMap Int -> Int
 flashesAfterStep = Map.foldr (\v -> if v > 9 then (+1) else (+0)) 0
 
 resetFlashed :: GridMap Int -> GridMap Int
-resetFlashed = Map.map (\x -> if x > 9 then 0 else x) 
+resetFlashed = Map.map (\v -> if v > 9 then 0 else v) 
 
 
 
