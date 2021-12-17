@@ -15,13 +15,15 @@ solveBoth :: IO ()
 solveBoth = do
     grid <- mkGridMap . map (map digitToInt) . lines <$> readFile "./infiles/Day11.in"
     print $ solveA 100 grid
+    print $ solveB grid
 
 solveA :: Int -> GridMap Int -> Int
 solveA steps gm = sum $ map snd $ take (1+steps) results
     where results = iterate (\(m, count) -> step m) (gm, 0) 
 
-solveB :: Int -> GridMap Int -> Int
-solveB = undefined
+solveB :: GridMap Int -> Int
+solveB gm = length $ takeWhile (\(m, flashCount) -> flashCount /= length gm) results
+    where results = iterate (\(m, count) -> step m) (gm, 0)
 
 step :: GridMap Int -> (GridMap Int, Int)
 step gm = let beforeReset = flash $ Map.map (+1) gm
@@ -44,7 +46,6 @@ flashStep gm cs = uncurry flashStep updatedGm
               let newList = if v+1 == 10 then c:neighborCoords8 c ++ xs else xs 
               return (newMap, newList))
 
-          
 
 flashesAfterStep :: GridMap Int -> Int
 flashesAfterStep = Map.foldr (\v -> if v > 9 then (+1) else (+0)) 0
