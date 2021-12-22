@@ -32,6 +32,7 @@ library
       Day13
       Day14
       Day15
+      Day16
       Day2
       Day3
       Day4
@@ -50,6 +51,7 @@ library
     , base >=4.7 && <5
     , containers
     , mtl
+    , parsec >=3.1
     , split
   default-language: Haskell2010
 
@@ -66,6 +68,7 @@ executable advent-of-code-exe
     , base >=4.7 && <5
     , containers
     , mtl
+    , parsec >=3.1
     , split
   default-language: Haskell2010
 
@@ -83,5 +86,6 @@ test-suite advent-of-code-test
     , base >=4.7 && <5
     , containers
     , mtl
+    , parsec >=3.1
     , split
   default-language: Haskell2010

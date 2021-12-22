@@ -16,18 +16,15 @@ solveBoth = do
     graph <- parseInput . lines <$> readFile "./infiles/Day12.in"
     testGraph <- parseInput . lines <$> readFile "./infiles/Day12Test.in"
     print $ solveA testGraph
-    --print $ solveA graph
-    
-
-
+    print $ solveA testGraph
 
 type Graph = Map String [String]
 
 solveA :: Graph -> Int
-solveA graph = evalState (checkPaths graph start) (Map.fromList [(x, 0) | x <- Map.keys graph], 0)
+solveA graph = evalState (checkPaths graph start) startState
+    where startState = (Map.fromList [(x, 0) | x <- Map.keys graph], 0)
 
 start = "start"
-
 end = "end"
 
 checkPaths :: Graph -> String -> State (Map String Int, Int) Int
@@ -51,11 +48,18 @@ checkPaths graph src = do
     return pathCount 
 
 filterNeighsA :: Map String Int -> [String] -> [String]
-filterNeighsA visited = filter (\n -> all isUpper n || Map.findWithDefault 0 n visited == 0) 
+filterNeighsA visited = filter (\n -> isBigCave n || Map.findWithDefault 0 n visited == 0) 
+
+isBigCave :: String -> Bool
+isBigCave = all isUpper
+
 
 --TODO: unfinished
 filterNeighsB :: Map String Int -> [String] -> [String]
-filterNeighsB visited = filter (\n -> all isUpper n || (\vc -> (n == start && vc < 0) || (n /= start && vc < 2)) (Map.findWithDefault 0 n visited))
+filterNeighsB visited = filter (\n -> pred n (Map.findWithDefault 0 n visited))
+    where startOrEnd n = n == start || n == end
+          smallCave n = not (isBigCave n) && not (startOrEnd n)
+          pred n vc = (startOrEnd n && vc < 1) || isBigCave n || (smallCave n && vc < 2)
 
 parseInput :: [String] -> Graph
 parseInput = Map.fromListWith (++) . concatMap (edge . splitOn "-")

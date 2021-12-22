@@ -4,6 +4,7 @@ import System.Environment
 import Data.List  
 import Data.Char(digitToInt)
 import Data.Bifunctor(first)
+import Lib(binToInt)
 
 solveBoth :: IO ()
 solveBoth = do
@@ -35,9 +36,6 @@ revBin = map (\b -> if b == '1' then '0' else '1')
 
 dominantBit :: String -> Char
 dominantBit xs =  if sum (map digitToInt xs) >= ((length xs+1) `div` 2) then '1' else '0'
-
-binToInt :: String -> Int
-binToInt = foldl (\acc x -> acc * 2 + digitToInt x) 0
 
 solveB :: [String] -> Int
 solveB xs = binToInt (findCo2 (xs, xs)) * binToInt (findOxygen (xs, xs))

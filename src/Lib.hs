@@ -5,9 +5,12 @@ module Lib
       neighborVals,
       GridMap,
       neighborCoords,
-      neighborCoords8
+      neighborCoords8,
+      binToInt,
+      intToBin
     ) where
 
+import Data.Char(digitToInt, intToDigit)
 import Data.List
 import Data.Map (Map)
 import qualified Data.Map as Map
@@ -33,4 +36,12 @@ neighborCoords8 (r, c) = [(r-1, c-1), (r-1, c+1), (r+1, c-1), (r+1, c+1)] ++ nei
 allCoords :: [[Int]] -> [(Int, Int)]
 allCoords xs = [(r, c) | r <- [0..length xs-1], c <- [0..length (transpose xs)-1]]
 
+binToInt :: String -> Int
+binToInt = foldl (\acc x -> acc * 2 + digitToInt x) 0
+
+intToBin :: Int -> String
+intToBin 0 = "0"
+intToBin n = map intToDigit $ reverse (helper n)
+    where helper 0 = []
+          helper n = let (q,r) = n `divMod` 2 in r : helper q
 
