@@ -14,12 +14,9 @@ import Data.List.Split(splitOn)
 
 solveBoth :: IO ()
 solveBoth = do
-    (holeSet, folds) <- parseInput . lines <$> readFile "./infiles/Day13Test.in"
+    (holeSet, folds) <- parseInput . lines <$> readFile "./infiles/Day13.in"
     print $ solveA (head folds) holeSet
-    print folds
-    print holeSet
-    print $ solveB (init folds) holeSet
-    print $ solveB folds holeSet
+    putStrLn $ prettyPrint $ solveB folds holeSet
 
 data Fold = X Int | Y Int deriving (Show, Eq)
 
@@ -40,6 +37,15 @@ solveB :: [Fold] -> Set (Int, Int) -> Set (Int, Int)
 solveB (f:fs) = solveB fs . Set.map (foldStep f)
 solveB _ = id
 
+prettyPrint :: Set (Int, Int) -> String
+prettyPrint gm = map coordToChar $ sortBy (\(x, y) (x1, y1) -> compare (y, x) (y1, x1)) $ [(x, y) | x <- [0..maxX+1], y <- [0..maxY+1]]
+    where maxX = fst $ maximumBy (\(x, y) (x1, y1) -> compare x x1) gm
+          maxY = snd $ maximumBy (\(x, y) (x1, y1) -> compare y y1) gm
+          coordToChar (x, y) 
+            | Set.member (x, y) gm = '#'
+            | x > maxX             = '\n'
+            | otherwise            = '.'
+
 foldStep :: Fold -> (Int, Int) -> (Int, Int)
-foldStep (X xLine) (x, y) = if x > xLine then ((xLine*2)-x, y) else (y, x)
-foldStep (Y yLine) (x, y) = if y > yLine then (x, (yLine*2)-y) else (y, x)
+foldStep (X xLine) (x, y) = if x > xLine then ((xLine*2)-x, y) else (x, y)
+foldStep (Y yLine) (x, y) = if y > yLine then (x, (yLine*2)-y) else (x, y)
