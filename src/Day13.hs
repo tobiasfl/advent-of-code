@@ -1,15 +1,9 @@
 module Day13 where
 
-import Lib(mkGridMap, allCoords, GridMap, neighborCoords8)
 import System.Environment   
 import Data.List
-import Data.Char(digitToInt)
-import Data.Map (Map)
-import qualified Data.Map as Map
-import Data.Stack
 import Data.Set (Set)
 import qualified Data.Set as Set
-import Data.Maybe
 import Data.List.Split(splitOn)
 
 solveBoth :: IO ()
