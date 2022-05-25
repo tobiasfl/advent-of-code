@@ -2,7 +2,6 @@ module AoC2020.Day2 where
 
 import System.Environment   
 import Text.Parsec as Parsec
-import Text.Parsec ((<|>))
 import Data.Either
 
 type InpLine = (Int, Int, Char, String)
