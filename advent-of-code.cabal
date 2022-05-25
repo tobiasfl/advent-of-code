@@ -25,23 +25,25 @@ source-repository head
 
 library
   exposed-modules:
-      Day1
-      Day10
-      Day11
-      Day12
-      Day13
-      Day14
-      Day15
-      Day16
-      Day17
-      Day2
-      Day3
-      Day4
-      Day5
-      Day6
-      Day7
-      Day8
-      Day9
+      AoC2020.Day1
+      AoC2020.Day2
+      AoC2021.Day1
+      AoC2021.Day10
+      AoC2021.Day11
+      AoC2021.Day12
+      AoC2021.Day13
+      AoC2021.Day14
+      AoC2021.Day15
+      AoC2021.Day16
+      AoC2021.Day17
+      AoC2021.Day2
+      AoC2021.Day3
+      AoC2021.Day4
+      AoC2021.Day5
+      AoC2021.Day6
+      AoC2021.Day7
+      AoC2021.Day8
+      AoC2021.Day9
       Lib
   other-modules:
       Paths_advent_of_code
