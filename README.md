@@ -1,2 +1,2 @@
-# Advent of Code 2021
-My solutions to Advent of Code 2021 in Haskell.
+# Advent of Code
+My solutions to Advent of Code challenges in Haskell.
