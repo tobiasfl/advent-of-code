@@ -6,7 +6,7 @@ solveBoth :: IO ()
 solveBoth = do
     grid <- fmap cycle . lines <$> readFile "./infiles/AoC2020/Day3.in"
     print $ "A:" ++ show (countTrees (1, 3) grid)
-    let b = product [countTrees coords grid | coords <- [(1, 1), (1, 3), (1, 5), (1, 7), (2, 1)]]
+    let b = product $ fmap (`countTrees` grid) [(1, 1), (1, 3), (1, 5), (1, 7), (2, 1)]
     print $ "B:" ++ show b
 
 countTrees :: (Int, Int) -> [String] -> Int
