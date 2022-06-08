@@ -45,3 +45,7 @@ intToBin n = map intToDigit $ reverse (helper n)
     where helper 0 = []
           helper n = let (q,r) = n `divMod` 2 in r : helper q
 
+type Graph a b = Map a b
+
+
+
