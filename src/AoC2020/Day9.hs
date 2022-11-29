@@ -6,6 +6,7 @@ import qualified Data.Multimap as MM
 import Data.Array
 import Text.Read (readMaybe)
 import Data.Maybe (fromMaybe)
+import Control.Monad
 import Control.Monad.Reader
 import Debug.Trace
 import Data.List (subsequences, find)
@@ -23,6 +24,10 @@ solve = do
     let num2lines = MM.fromList $ zip linesAsInts [0..length linesAsInts-1]
     let invalidNum = runReader firstInvalidNum (Data line2num num2lines)
     print invalidNum
+    print $ findMinAndMaxNum linesAsInts invalidNum
+    let addedMinAndMax = (case findMinAndMaxNum linesAsInts invalidNum of Just (x, y) -> x+y
+                                                                          Nothing -> 0) 
+    print addedMinAndMax
 
 parseInput :: String -> Maybe [Int]
 parseInput = traverse readMaybe . lines
@@ -48,9 +53,21 @@ tryToSumWithLine num line = do
     let numNeededForSum = max numOnLine num - min numOnLine num
     return $ any (`elem` rangeToCheck line) (MM.lookup numNeededForSum n2l)
 
-contiguousNums :: [Int] -> Int -> [Int]
-contiguousNums xs invalidNum = undefined
+findMinAndMaxNum :: [Int] -> Int -> Maybe (Int, Int)
+findMinAndMaxNum xs = fmap (\(minIndex, maxIndex) -> (xs !! minIndex, xs !! (maxIndex-1))) . findRange xs 
 
-bruteFoce :: Int -> [Int] -> Int
-bruteFoce goal xs = maximum nums + minimum nums
-    where nums = fromMaybe [] $ find ((goal ==) . sum) $ subsequences xs
+findRange :: [Int] -> Int -> Maybe (Int, Int)
+findRange xs numToFind = 
+    find (\(start, end) -> numToFind == pSums !! end - pSums !! (start-1)) (rangesToCheck xs)
+    where pSums = partialSums xs
+
+rangesToCheck :: [Int] -> [(Int, Int)]
+rangesToCheck xs = do
+    x <- indices
+    y <- indices
+    guard (x < y)
+    [(x, y)]
+        where indices = [1..length xs]
+
+partialSums :: [Int] -> [Int]
+partialSums = scanl (+) 0 
