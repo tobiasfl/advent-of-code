@@ -26,12 +26,17 @@ source-repository head
 library
   exposed-modules:
       AoC2020.Day1
+      AoC2020.Day10
+      AoC2020.Day11
+      AoC2020.Day12
       AoC2020.Day2
       AoC2020.Day3
       AoC2020.Day4
       AoC2020.Day5
       AoC2020.Day6
       AoC2020.Day7
+      AoC2020.Day8
+      AoC2020.Day9
       AoC2021.Day1
       AoC2021.Day10
       AoC2021.Day11
@@ -49,6 +54,11 @@ library
       AoC2021.Day7
       AoC2021.Day8
       AoC2021.Day9
+      AoC2022.Day1
+      AoC2022.Day2
+      AoC2022.Day3
+      AoC2022.Day4
+      Graph
       Lib
   other-modules:
       Paths_advent_of_code
@@ -56,11 +66,14 @@ library
       src
   build-depends:
       Stack
+    , array
     , base >=4.7 && <5
     , containers
     , mtl
+    , multi-containers
     , parsec >=3.1
     , split
+    , vector
   default-language: Haskell2010
 
 executable advent-of-code-exe
@@ -73,11 +86,14 @@ executable advent-of-code-exe
   build-depends:
       Stack
     , advent-of-code
+    , array
     , base >=4.7 && <5
     , containers
     , mtl
+    , multi-containers
     , parsec >=3.1
     , split
+    , vector
   default-language: Haskell2010
 
 test-suite advent-of-code-test
@@ -91,9 +107,12 @@ test-suite advent-of-code-test
   build-depends:
       Stack
     , advent-of-code
+    , array
     , base >=4.7 && <5
     , containers
     , mtl
+    , multi-containers
     , parsec >=3.1
     , split
+    , vector
   default-language: Haskell2010
