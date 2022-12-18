@@ -29,6 +29,7 @@ dependencies:
 - array
 - multi-containers
 - vector
+- lens
 
 library:
   source-dirs: src

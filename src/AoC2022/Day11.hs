@@ -17,13 +17,14 @@ data Monkey = Monkey
     { items       :: [Int]
     , op          :: Int -> Int
     , test        :: Int -> Int  --result is id of monkey to throw to
-    , inspections :: Int }
+    , inspections :: Int
+    , divBy       :: Int}
 
 addItem :: Int -> Monkey -> Monkey
-addItem newItem (Monkey i op t insp) = Monkey (i++[newItem]) op t insp
+addItem newItem (Monkey i op t insp db) = Monkey (i++[newItem]) op t insp db
 
 instance Show Monkey where
-    show (Monkey i o t insp) = "Monkey items:" ++ show i ++ " inspections:" ++ show insp
+    show (Monkey i o t insp db) = "Monkey items:" ++ show i ++ " inspections:" ++ show insp
 
 solve :: IO ()
 solve = do
@@ -42,9 +43,9 @@ parseMonkey = do
     string "Starting items: "
     items <- many parseItem
     operation <- parseOperation
-    test <- parseMTest
+    (db, test) <- parseMTest
     choice [newline, eof $> '\n']
-    return $ Monkey items operation test 0
+    return $ Monkey items operation test 0 db
 
 parseItem :: Parsec.Parsec String () Int
 parseItem = do
@@ -61,7 +62,7 @@ parseOperation = do
     newline
     return (case readMaybe rightSide of Nothing -> (\old -> operator old old)
                                         Just x  -> (`operator` x))
-parseMTest :: Parsec.Parsec String () (Int -> Int)
+parseMTest :: Parsec.Parsec String () (Int, Int -> Int)
 parseMTest = do
     spaces >> string "Test: divisible by "
     divBy <- many1 digit >>= maybe (fail "Failed to read divBy") return . readMaybe
@@ -70,7 +71,7 @@ parseMTest = do
     newline >> spaces >> string "If false: throw to monkey "
     ifFalse <- many1 digit >>= maybe (fail "Failed to read ifFalse") return . readMaybe
     newline
-    return (\worryLevel -> if worryLevel `mod` divBy == 0 then ifTrue else ifFalse)
+    return (divBy, \worryLevel -> if worryLevel `mod` divBy == 0 then ifTrue else ifFalse)
 
 monkeyBusiness :: Int -> Monkeys -> Int
 monkeyBusiness n = foldl (\acc m -> acc * inspections m) 1 . mostActive . doRounds n
@@ -79,23 +80,30 @@ mostActive :: Monkeys -> [Monkey]
 mostActive = take 2 . sortBy (\m1 m2 -> compare (inspections m2) (inspections m1)) . Map.elems
 
 doRounds :: Int -> Monkeys -> Monkeys
-doRounds n = last . take n . iterate doRound
+doRounds n monkeys = last $ take n $ iterate (doRound (Just supermod)) monkeys
+    where supermod = foldl (\acc m2 -> acc * divBy m2) 1 (Map.elems monkeys)
 
-doRound :: Monkeys -> Monkeys
-doRound monkeys = foldl monkeyRound monkeys (Map.keys monkeys)
+doRound :: Maybe Int -> Monkeys -> Monkeys
+doRound supermod monkeys = foldl (monkeyRound supermod) monkeys (Map.keys monkeys)
 
-monkeyRound ::  Monkeys -> Int -> Monkeys
-monkeyRound monkeys monkeyId = fromMaybe monkeys $ do
-    (Monkey is o t insps) <- Map.lookup monkeyId monkeys
-    let updatedItems = map (afterInspect . o) is
+--reduceWorry :: Monkeys -> Monkeys
+--reduceWorry monkeys =
+--    where minWorry = maximumBy (\m1 m2 -> compare ()) $
+--    TODO: add divBy Monkey, make sure none are dive to less than minWorry which is max divBy of all
+
+monkeyRound :: Maybe Int -> Monkeys -> Int -> Monkeys
+monkeyRound supermod monkeys monkeyId = fromMaybe monkeys $ do
+    (Monkey is o t insps db) <- Map.lookup monkeyId monkeys
+    let updatedItems = map (afterInspect supermod . o) is
     let newMonkeys = foldl (\m item -> throwToMonkey item (t item) m) monkeys updatedItems
-    Just $ Map.insert monkeyId (Monkey [] o t (insps + length is)) newMonkeys
+    Just $ Map.insert monkeyId (Monkey [] o t (insps + length is) db) newMonkeys
 
-afterInspect :: Int -> Int
---afterInspect = (`div` 3)
-afterInspect = id
+afterInspect :: Maybe Int -> Int -> Int
+afterInspect Nothing item = item `div` 3
+afterInspect (Just supermod) item = item `mod` supermod
 
 throwToMonkey :: Int -> Int -> Monkeys -> Monkeys
 throwToMonkey item = Map.adjust (addItem item)
 
 ---TODO: Manipulate inspected items somehow to avoid int overflow
+--likely div the respective numbers by something
