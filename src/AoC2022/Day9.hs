@@ -14,39 +14,38 @@ solve :: IO ()
 solve = do
     fileContents <- readFile "./infiles/AoC2022/Day9.in"
     inp <- maybe (error "invalid input") pure $ parseInput fileContents
-    print $ tailPosCount inp
+    print $ tailPosCountN 2 inp
+    print $ tailPosCountN 10 inp
 
 parseInput :: String -> Maybe [Step]
 parseInput = traverse (parseLine . words) . lines
     where parseLine [dir, n] = (dir,) <$> readMaybe n
           parseLine _        = Nothing
 
-tailPosCount :: [Step] -> Int
-tailPosCount = length . nub . map snd . allMoves ((0, 0), (0, 0))
+tailPosCountN :: Int -> [Step] -> Int
+tailPosCountN n = length . nub . map (drop (n-1)) . allMoves (replicate n (0, 0))
 
-allMoves :: (Pos, Pos) -> [Step] -> [(Pos, Pos)]
-allMoves pos [] = [pos]
-allMoves ((hx, hy), t) ((dir, 0):xs) = allMoves ((hx, hy), t) xs
-allMoves ((hx, hy), t) ((dir, n):xs) = newPos:allMoves newPos ((dir, n-1):xs)
-    where newPos = newTailPos (newHeadPos, t)
+allMoves :: [Pos] -> [Step] -> [[Pos]]
+allMoves ((hx, hy):knots) ((dir, 0):xs) = allMoves ((hx, hy):knots) xs
+allMoves ((hx, hy):knots) ((dir, n):xs) = newPos:allMoves newPos ((dir, n-1):xs)
+    where newPos = newTailPos (newHeadPos:knots)
           newHeadPos = case dir of
                      "R" -> (hx+1, hy)
                      "L" -> (hx-1, hy)
                      "U" -> (hx, hy+1)
                      "D" -> (hx, hy-1)
                      _   -> (hx, hy)
+allMoves _ _ = []
 
-newTailPos :: (Pos, Pos) -> (Pos, Pos)
-newTailPos (hp@(hx, hy), tp@(tx, ty))
-  | onDiag && twoOff = (hp, (horMove, vertMove))
-  | hx == tx && twoOff = (hp, (tx, vertMove))
-  | hy == ty && twoOff = (hp, (horMove, ty))
-  | otherwise = (hp, tp)
+newTailPos :: [Pos] -> [Pos]
+newTailPos (hp@(hx, hy):tp@(tx, ty):knots)
+  | onDiag && twoOff = hp:newTailPos ((horMove, vertMove):knots)
+  | hx == tx && twoOff = hp:newTailPos ((tx, vertMove):knots)
+  | hy == ty && twoOff = hp:newTailPos ((horMove, ty):knots)
+  | otherwise = hp:newTailPos (tp:knots)
       where diff x y = max x y - min x y
             twoOff = diff hx tx >= 2 || diff hy ty >= 2
             onDiag = hx /= tx && hy /= ty
             vertMove = if hy > ty then ty+1 else ty-1
             horMove = if hx > tx then tx+1 else tx-1
-
-
-
+newTailPos xs = xs
