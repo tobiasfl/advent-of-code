@@ -30,6 +30,7 @@ dependencies:
 - multi-containers
 - vector
 - lens
+- extra
 
 library:
   source-dirs: src
