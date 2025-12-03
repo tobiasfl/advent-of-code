@@ -17,7 +17,6 @@ solve = do
     let idRanges = parse fileContents
     print $ sum $ invalidIds idRanges
     print $ sum $ invalidIds2 idRanges
-    pure ()
 
 parse :: String -> [(Int, Int)]
 parse = mapMaybe (parseTuple . splitOn "-") . splitOn ","
@@ -25,14 +24,15 @@ parse = mapMaybe (parseTuple . splitOn "-") . splitOn ","
           parseTuple _ = Nothing
 
 invalidIds :: [(Int, Int)] -> [Int]
-invalidIds = filter (isInvalidId . show) . evenLengthNums . expand
-    where expand = concatMap (\(s, e) -> [s..e])
-          evenLengthNums = filter (even . length . show)
+invalidIds = filter (isInvalidId . show) . evenLengthNums . rangesToAllIds
+    where evenLengthNums = filter (even . length . show)
           isInvalidId idStr = uncurry (==) $ splitAt (length idStr `div` 2) idStr
 
 invalidIds2 :: [(Int, Int)] -> [Int]
-invalidIds2 = filter (isInvalidId . show) . expand
-    where expand = concatMap (\(s, e) -> [s..e])
+invalidIds2 = filter (isInvalidId . show) . rangesToAllIds
+
+rangesToAllIds :: [(Int, Int)] -> [Int]
+rangesToAllIds = concatMap (\(s, e) -> [s..e])
 
 isInvalidId :: String -> Bool
 isInvalidId num = any (\seqLen -> allSame $ chunksOf seqLen num) [1..(length num `div` 2)]
