@@ -74,6 +74,7 @@ library
       AoC2024.Day5
       AoC2025.Day1
       AoC2025.Day2
+      AoC2025.Day3
       Graph
       Lib
   other-modules:
