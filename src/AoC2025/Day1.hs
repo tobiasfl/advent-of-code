@@ -14,7 +14,6 @@ solve = do
     let instructions = parse fileContents
     print $ numZeros instructions
     print $ allZeroPassings instructions
-    pure ()
 
 
 parse :: String -> [Int]
