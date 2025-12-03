@@ -12,6 +12,7 @@ import Data.Set (Set)
 import qualified Data.Set as S
 import Control.Monad.State
 import Data.Bifunctor(first, second)
+import Control.Monad (forM_)
 
 solveBoth :: IO ()
 solveBoth = do

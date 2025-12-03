@@ -1,0 +1,13 @@
+cradle:
+  cabal:
+    - path: "src"
+      component: "lib:advent-of-code"
+
+    - path: "app/Main.hs"
+      component: "advent-of-code:exe:advent-of-code-exe"
+
+    - path: "app/Paths_advent_of_code.hs"
+      component: "advent-of-code:exe:advent-of-code-exe"
+
+    - path: "test"
+      component: "advent-of-code:test:advent-of-code-test"

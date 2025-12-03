@@ -8,6 +8,7 @@ import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Maybe
 import Control.Monad.State
+import Control.Monad (when)
 import Data.Bifunctor(first)
 
 

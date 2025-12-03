@@ -6,6 +6,7 @@ import qualified Data.Set as S
 import Control.Monad.State
 import Data.Maybe (fromMaybe, fromJust)
 import Data.List (find)
+import Data.Traversable 
 
 data Instr = Acc Int | Nop Int | Jmp Int
     deriving (Show, Eq)

@@ -7,14 +7,13 @@ packages:
 - completed:
     hackage: Stack-0.4.0@sha256:ada69a23ed9bbaf97260397f6b39b7a1f4e22a11bcac3fe2e8f23f1513f59fd8,1092
     pantry-tree:
-      size: 355
       sha256: 4a0e8d5c268b9d19cb472ac94f0e2291afbb899ce4f5878bbbe86effeba36c6f
+      size: 355
   original:
     hackage: Stack-0.4.0@sha256:ada69a23ed9bbaf97260397f6b39b7a1f4e22a11bcac3fe2e8f23f1513f59fd8,1092
 snapshots:
 - completed:
-    size: 586296
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/18/18.yaml
-    sha256: 63539429076b7ebbab6daa7656cfb079393bf644971156dc349d7c0453694ac2
-  original:
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/18/18.yaml
+    sha256: 3e184a8f5e751ba159db999ce1bebe45143ce8422b525b4d2de6d9b849d203c9
+    size: 720269
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/22/42.yaml
+  original: lts-22.42

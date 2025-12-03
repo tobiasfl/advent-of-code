@@ -20,6 +20,21 @@ import Data.Bifunctor (second)
 --then down-left, 
 --then down-right.
 
+--The output of the example should be like this when prettyprinted:
+-- .......+...
+-- .......~...
+-- ......~o...
+-- .....~ooo..
+-- ....~#ooo##
+-- ...~o#ooo#.
+-- ..~###ooo#.
+-- ..~..oooo#.
+-- .~o.ooooo#.
+-- ~#########.
+-- ~..........
+-- ~..........
+-- ~..........
+
 data Unit = Sand | Stone
     deriving (Show, Eq)
 
@@ -41,26 +56,27 @@ sandFall :: Maybe Grid -> Maybe Grid
 sandFall (Just g) = findRestCoord sandStart g >>= \rc -> Just $ M.insert rc Sand g
 sandFall _ = Nothing
 
---TODO: Probably need to change to overall approach in this one a bit
+
+--Make nextBelow faster
 findRestCoord :: Coord -> Grid -> Maybe Coord
 findRestCoord start g = do
-           s@(xS, yS) <- nextBelow start
-           guard (yS >= snd start && yS > snd sandStart)
-           checkFrom (xS-1, yS+1) <|> checkFrom (xS+1, yS+1) <|> pure s
+           current@(xC, yC) <- nextBelow start
+           guard (yC >= snd start && yC > snd sandStart)
+           checkFrom (xC-1, yC+1) <|> checkFrom (xC+1, yC+1) <|> pure current
     where nextBelow (x, y) =
             let exes = (map snd $ filter ((x==) . fst) $ M.keys g)
              in (x,) . subtract 1 <$> if null exes then Nothing else Just $ minimum exes
-          checkFrom c = if c `M.notMember` g
-                           then findRestCoord c g <|> (M.lookup (second (+1) c) g >> pure c)
-                           else Nothing
+          checkFrom coord = if coord `M.notMember` g
+                                then findRestCoord coord g <|> (M.lookup (second (+1) coord) g >> pure coord)
+                                else Nothing
 
 example = "498,4 -> 498,6 -> 496,6\n503,4 -> 502,4 -> 502,9 -> 494,9"
 
 solve :: IO ()
 solve = do
     fileContents <- readFile "./infiles/AoC2022/Day14.in"
-    --let g = parseInput fileContents
-    let g = parseInput example
+    let g = parseInput fileContents
+    --let g = parseInput example
     putStrLn $ prettyPrint g
     putStrLn $ prettyPrint (restingSandGrid g)
     print $ restingSandCount g
