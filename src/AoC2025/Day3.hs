@@ -10,15 +10,12 @@ import Debug.Trace (trace)
 
 example :: [String]
 example = [ "987654321111111", "811111111111119", "234234234234278", "818181911112111" ]
---example = [ "987654321111111"]
 
 solve :: IO ()
 solve = do
     fileContents <- readFile "./infiles/AoC2025/Day3.in"
     let batteryBanks = lines fileContents
-    --print $ totalOutputJoltage example
     print $ totalOutputJoltage batteryBanks
-    pure ()
 
 totalOutputJoltage :: [String] -> Int
 totalOutputJoltage = sum . map maxBankJoltage
@@ -29,7 +26,6 @@ maxBankJoltage xs = fromJust $ find (\n -> findNum (show n) xs == show n) [99, 9
 findNum :: String -> String -> String
 findNum n xs = take 1 lastPart ++ take 1 (dropUntilChar (last n) (drop 1 lastPart))
     where lastPart = dropUntilChar (head n) xs
-
 
 dropUntilChar :: Char -> String -> String
 dropUntilChar n = dropWhile (n/=)
